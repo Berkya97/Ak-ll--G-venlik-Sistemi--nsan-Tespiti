@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Canlı Kamera Görüntüsü</h5>
+            </div>
+            <div class="card-body">
+                <div class="camera-feed">
+                    <img src="{{ url_for('main.video_feed') }}" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">İstatistikler</h5>
+            </div>
+            <div class="card-body">
+                <div class="stats-panel">
+                    <p>Tespit Edilen: <span id="detected-count">0</span></p>
+                    <p>Yetkili: <span id="authorized-count">0</span></p>
+                    <p>Yetkisiz: <span id="unauthorized-count">0</span></p>
+                </div>
+                <div class="alert alert-warning" id="alarm-status" style="display: none;">
+                    Alarm Aktif!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // WebSocket bağlantısı için
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(wsProtocol + '//' + window.location.host + '/ws');
+    
+    ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        
+        // İstatistikleri güncelle
+        document.getElementById('detected-count').textContent = data.detected;
+        document.getElementById('authorized-count').textContent = data.authorized;
+        document.getElementById('unauthorized-count').textContent = data.unauthorized;
+        
+        // Alarm durumunu güncelle
+        const alarmStatus = document.getElementById('alarm-status');
+        if (data.alarm_active) {
+            alarmStatus.style.display = 'block';
+        } else {
+            alarmStatus.style.display = 'none';
+        }
+    };
+
+    ws.onerror = function(error) {
+        console.error('WebSocket hatası:', error);
+    };
+
+    ws.onclose = function() {
+        console.log('WebSocket bağlantısı kapandı');
+        // Yeniden bağlanma denemesi
+        setTimeout(function() {
+            location.reload();
+        }, 5000);
+    };
+</script>
+{% endblock %}

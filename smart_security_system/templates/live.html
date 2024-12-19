@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Canlı İzleme{% endblock %}
+
+{% block content %}
+<div class="live-feed">
+    <div class="video-container">
+        <img id="live-stream" src="{{ url_for('video_feed') }}" alt="Canlı Yayın">
+    </div>
+    
+    <div class="detection-panel">
+        <h3>Tespit Edilen Nesneler</h3>
+        <ul id="detection-list"></ul>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" onclick="toggleFullscreen()">Tam Ekran</button>
+        <button class="control-btn" onclick="takeSnapshot()">Ekran Görüntüsü Al</button>
+        <button class="control-btn" onclick="toggleRecording()">Kayıt Başlat/Durdur</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/live-feed.js') }}"></script>
+{% endblock %}
